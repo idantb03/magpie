@@ -1,5 +1,5 @@
-import * as http from 'http';
-import Fastify, { FastifyBaseLogger, FastifyInstance, FastifyTypeProvider } from 'fastify';
+import Fastify, { FastifyInstance } from 'fastify';
+import { bookRoutes } from './interface/routes/book.route';
 
 const server: FastifyInstance = Fastify({
   logger: true
@@ -28,6 +28,3 @@ const start = async () => {
 
 start(); 
 
-function bookRoutes(instance: FastifyInstance<http.Server, any, any, FastifyBaseLogger, FastifyTypeProvider>, opts: { prefix: string; }, done: (err?: Error | undefined) => void): void {
-  throw new Error('Function not implemented.');
-}
