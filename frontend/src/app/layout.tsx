@@ -4,6 +4,7 @@ import "./globals.css";
 import { AnimatePresence } from "framer-motion";
 import { Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
+import { NextAuthProvider } from "@/providers/NextAuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,11 +31,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden`}
       >
-        <Theme>
-          <AnimatePresence mode="wait">
-            {children}
-          </AnimatePresence>
-        </Theme>
+        <NextAuthProvider>
+          <Theme>
+            <AnimatePresence mode="wait">
+              {children}
+            </AnimatePresence>
+          </Theme>
+        </NextAuthProvider>
       </body>
     </html>
   );
