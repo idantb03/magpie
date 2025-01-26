@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("USER")
+  active    Boolean   @default(true)
+  members   Member[]
+  books     Book[]    @relation("CreatedBooks")
+  lendings  Lending[] @relation("CreatedLendings")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+  @@index([email])
+}
+
+model Member {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  name        String
+  email       String
+  phone       String?
+  status      String    @default("ACTIVE")
+  joinedDate  DateTime  @map("joined_date")
+  active      Boolean   @default(true)
+  user        User      @relation(fields: [userId], references: [id])
+  lendings    Lending[]
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("members")
+  @@index([email])
+  @@index([status])
+}
+
+model Book {
+  id          Int         @id @default(autoincrement())
+  title       String
+  author      String
+  isbn        String      @unique
+  quantity    Int
+  categoryId  Int         @map("category_id")
+  createdBy   Int         @map("created_by")
+  description String?     @db.Text
+  publisher   String?
+  publishYear Int?        @map("publish_year")
+  active      Boolean     @default(true)
+  category    Category    @relation(fields: [categoryId], references: [id])
+  creator     User        @relation("CreatedBooks", fields: [createdBy], references: [id])
+  lendings    Lending[]
+  bookStatus  BookStatus?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@map("books")
+  @@index([isbn])
+  @@index([title])
+  @@index([author])
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  books     Book[]
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Lending {
+  id           Int       @id @default(autoincrement())
+  bookId       Int       @map("book_id")
+  memberId     Int       @map("member_id")
+  borrowedDate DateTime  @map("borrowed_date")
+  dueDate      DateTime  @map("due_date")
+  returnDate   DateTime? @map("return_date")
+  status       String
+  notes        String?   @db.Text
+  createdBy    Int       @map("created_by")
+  book         Book      @relation(fields: [bookId], references: [id])
+  member       Member    @relation(fields: [memberId], references: [id])
+  creator      User      @relation("CreatedLendings", fields: [createdBy], references: [id])
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("lending")
+  @@index([status])
+  @@index([borrowedDate])
+  @@index([dueDate])
+}
+
+model BookStatus {
+  id           Int      @id @default(autoincrement())
+  bookId       Int      @unique @map("book_id")
+  availableQty Int      @map("available_qty")
+  borrowedQty  Int      @map("borrowed_qty")
+  book         Book     @relation(fields: [bookId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("book_status")
+}
